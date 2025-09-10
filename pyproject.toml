@@ -1,0 +1,44 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pygeoglim"
+version = "1.0.0"
+authors = [
+    {name = "Mohammad Galib", email = "mgalib@purdue.edu"},
+]
+description = "Fast access to GLiM and GLHYMPS geology attributes for watersheds"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.8"
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: GIS",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+keywords = ["geology", "hydrology", "watershed", "GLiM", "GLHYMPS", "geospatial"]
+dependencies = [
+    "geopandas>=0.12.0",
+    "shapely>=1.8.0",
+    "numpy>=1.20.0",
+    "pandas>=1.3.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/galib9690/pygeoglim"
+Repository = "https://github.com/galib9690/pygeoglim.git"
+Issues = "https://github.com/galib9690/pygeoglim/issues"
+Documentation = "https://github.com/galib9690/pygeoglim#readme"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["pygeoglim*"]
+exclude = ["tests*"]
