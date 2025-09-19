@@ -5,9 +5,9 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="pygeoglim",
-    version="1.0.1",
+    version="1.0.2",
     author="Mohammad Galib",
-    description="Fast access to GLiM and GLHYMPS geology attributes for watersheds",
+    description="A Python package for extracting geological attributes from GLiM and GLHYMPS datasets",
     long_description=long_description,
     long_description_content_type="text/markdown",
     packages=find_packages(),

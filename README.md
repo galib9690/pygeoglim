@@ -1,13 +1,21 @@
 # pygeoglim
 
-Fast Python package for extracting **geology attributes** (GLiM lithology + GLHYMPS hydrogeology) from Hugging Face datasets for any watershed or region.
+[![PyPI version](https://badge.fury.io/py/pygeoglim.svg)](https://badge.fury.io/py/pygeoglim)
+[![Python versions](https://img.shields.io/pypi/pyversions/pygeoglim.svg)](https://pypi.org/project/pygeoglim/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-## 🚀 Performance
+**`pygeoglim`** is a Python package for extracting geology attributes—specifically lithological and hydrogeological properties—from **GLiM** and **GLHYMPS** datasets for any region or watershed in CONUS region. It is built for use in hydrological modeling, large-sample hydrology, and Earth system research.
 
-- **Individual watersheds**: 1-5 seconds ⚡
-- **Regional analysis**: 10-30 seconds
-- **Large areas**: 1-2 minutes
-- **Direct from Hugging Face**: No local downloads needed
+## 📋 Table of Contents
+
+- [Installation](#-installation)
+- [Quick Start](#-quick-start)
+- [Extracted Attributes](#-extracted-attributes)
+- [Data Sources](#-data-sources)
+- [Requirements](#-requirements)
+- [Citation](#-citation)
+- [License](#-license)
+- [Author](#-author)
 
 ## 📦 Installation
 
@@ -21,68 +29,142 @@ pip install pygeoglim
 pip install git+https://github.com/galib9690/pygeoglim.git
 ```
 
-### For Development
+### Development Mode
 ```bash
 git clone https://github.com/galib9690/pygeoglim.git
 cd pygeoglim
 pip install -e .
 ```
 
-## 🔧 Quick Start
+## 🚀 Quick Start
+
+### Basic Usage
 
 ```python
 from pygeoglim import load_geometry, glim_attributes, glhymps_attributes
 
-# Example 1: Using bounding box
+# Load geometry from bounding box
 geom = load_geometry(bbox=[-85.5, 39.5, -85.0, 40.0])
 
-# Get GLiM lithology attributes
-glim_attrs = glim_attributes(geom)
-print("GLiM attributes:", glim_attrs)
+# Extract lithology attributes (GLiM)
+glim = glim_attributes(geom)
 
-# Get GLHYMPS hydrogeology attributes  
-glhymps_attrs = glhymps_attributes(geom)
-print("GLHYMPS attributes:", glhymps_attrs)
+# Extract hydrogeology attributes (GLHYMPS)
+glhymps = glhymps_attributes(geom)
 
-# Example 2: Using shapefile
-geom = load_geometry(shapefile="path/to/watershed.shp")
-attrs = {**glim_attributes(geom), **glhymps_attributes(geom)}
+# Combine results
+attributes = {**glim, **glhymps}
+print(attributes)
 ```
 
-## 📊 Output Attributes
+### Using Shapefile Input
 
-### GLiM Lithology
-- `geol_1st_class`: Dominant lithology class
-- `glim_1st_class_frac`: Fraction of dominant class
-- `geol_2nd_class`: Second most common class
-- `glim_2nd_class_frac`: Fraction of second class
-- `carbonate_rocks_frac`: Fraction of carbonate rocks
+You can also pass a shapefile path instead of a bounding box:
 
-### GLHYMPS Hydrogeology
-- `geol_permeability`: Area-weighted permeability (m²)
-- `geol_porosity`: Area-weighted porosity (fraction)
+```python
+# Load geometry from shapefile
+geom = load_geometry(shapefile="path/to/watershed.shp")
+
+# Extract attributes
+glim = glim_attributes(geom)
+glhymps = glhymps_attributes(geom)
+```
+
+### Complete Example
+
+```python
+from pygeoglim import load_geometry, glim_attributes, glhymps_attributes
+import json
+
+# Define study area (example: small watershed in Indiana)
+bbox = [-85.5, 39.5, -85.0, 40.0]
+
+# Load geometry
+geom = load_geometry(bbox=bbox)
+
+# Extract all attributes
+geology_data = {
+    **glim_attributes(geom),
+    **glhymps_attributes(geom)
+}
+
+# Display results
+print(json.dumps(geology_data, indent=2))
+```
+
+## 📊 Extracted Attributes
+
+### Lithology (GLiM Dataset)
+| Attribute | Description |
+|-----------|-------------|
+| `geol_1st_class` | Dominant lithology class |
+| `glim_1st_class_frac` | Fraction of dominant class |
+| `geol_2nd_class` | Second most common lithology class |
+| `glim_2nd_class_frac` | Fraction of second most common class |
+| `carbonate_rocks_frac` | Fraction of carbonate rocks |
+
+### Hydrogeology (GLHYMPS Dataset)
+| Attribute | Description | Units |
+|-----------|-------------|-------|
+| `geol_porosity` | Area-weighted porosity | fraction |
+| `geol_permeability` | Area-weighted permeability | log₁₀ m² |
+| `geol_permeability_linear` | Permeability (linear scale) | m² |
+| `hydraulic_conductivity` | Hydraulic conductivity | m/s |
 
 ## 🌍 Data Sources
 
-- **GLiM**: Global Lithological Map from Hugging Face Hub
-- **GLHYMPS**: Global Hydrogeology Maps from Hugging Face Hub (Parquet format)
-- **Coverage**: Continental United States (CONUS)
+### GLiM – Global Lithological Map
+- **Citation**: Hartmann, J., & Moosdorf, N. (2012). The new global lithological map database GLiM: A representation of rock properties at the Earth surface. *Geochemistry, Geophysics, Geosystems*, 13, Q12004.
+- **DOI**: [10.1029/2012GC004370](https://doi.org/10.1029/2012GC004370)
+- **Dataset DOI**: [10.1594/PANGAEA.788537](https://doi.org/10.1594/PANGAEA.788537)
 
-## 🔄 Recent Updates
-
-- ✅ Reverted to reliable .gpkg format for GLHYMPS data
-- ✅ Simplified data loading with direct mask-based filtering
-- ✅ Updated column mappings for actual dataset structure (`logK_Ice_x`, `Porosity_x`)
-- ✅ Streamlined error handling
+### GLHYMPS – Global Hydrogeology Maps
+- **Citation**: Gleeson, T., Moosdorf, N., Hartmann, J., & Van Beek, L. P. H. (2014). A Glimpse Beneath Earth's Surface: Global Hydrogeology Maps (GLHYMPS) of permeability and porosity. *Geophysical Research Letters*, 41(11), 3891–3898.
+- **DOI**: [10.1002/2014GL059856](https://doi.org/10.1002/2014GL059856)
 
 ## 📋 Requirements
 
-- Python >= 3.8
-- geopandas >= 0.12.0
-- shapely >= 1.8.0
-- numpy >= 1.20.0
-- pandas >= 1.3.0
+- **Python** ≥ 3.8
+- **geopandas** ≥ 0.12
+- **shapely** ≥ 1.8
+- **numpy** ≥ 1.20
+- **pandas** ≥ 1.3
 
-## 🐛 Troubleshooting
+## 📖 Citation
 
-If you encounter issues with GLHYMPS data loading, the package includes automatic fallback mechanisms and error reporting to help diagnose problems.
+If you use this package in your research, please cite:
+
+```bibtex
+@software{galib2025pygeoglim,
+  author = {Galib, Mohammad},
+  title = {pygeoglim: A Python package for extracting geological attributes from GLiM and GLHYMPS datasets},
+  url = {https://github.com/galib9690/pygeoglim},
+  year = {2025}
+}
+```
+
+Please also cite the original datasets (GLiM and GLHYMPS) as referenced in the [Data Sources](#-data-sources) section.
+
+## 🐛 Issues and Support
+
+If you encounter any problems or have questions:
+- Check the [Issues](https://github.com/galib9690/pygeoglim/issues) page
+- Create a new issue with a detailed description
+- Include your Python version, package version, and error messages
+
+## 🤝 License
+
+Distributed under the MIT License. See [LICENSE](LICENSE) for more information.
+
+## 👨‍💻 Author
+
+**Mohammad Galib**  
+Purdue University  
+
+- 📧 Email: [mgalib@purdue.edu]
+- 🌐 GitHub: [@galib9690](https://github.com/galib9690)
+- 🏛️ Institution: [Purdue University](https://www.purdue.edu/)
+
+---
+
+**Made with ❤️**
