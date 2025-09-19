@@ -53,7 +53,7 @@ glim = glim_attributes(geom)
 glhymps = glhymps_attributes(geom)
 
 # Combine results
-attributes = {**glim, **glhymps}
+attributes = {glim, glhymps}
 print(attributes)
 ```
 
@@ -68,28 +68,6 @@ geom = load_geometry(shapefile="path/to/watershed.shp")
 # Extract attributes
 glim = glim_attributes(geom)
 glhymps = glhymps_attributes(geom)
-```
-
-### Complete Example
-
-```python
-from pygeoglim import load_geometry, glim_attributes, glhymps_attributes
-import json
-
-# Define study area (example: small watershed in Indiana)
-bbox = [-85.5, 39.5, -85.0, 40.0]
-
-# Load geometry
-geom = load_geometry(bbox=bbox)
-
-# Extract all attributes
-geology_data = {
-    **glim_attributes(geom),
-    **glhymps_attributes(geom)
-}
-
-# Display results
-print(json.dumps(geology_data, indent=2))
 ```
 
 ## 📊 Extracted Attributes
