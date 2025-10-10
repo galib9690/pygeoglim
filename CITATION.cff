@@ -1,7 +1,7 @@
 cff-version: 1.2.0
 message: "If you use this software, please cite it as below."
-title: "pygeoglim: Python package for geospatial data analysis and visualization for GLIMS glacier datasets"
-version: v1.0.6
+title: "pygeoglim: Python Utilities for Global Lithologic Map Integration"
+version: 1.0.6
 date-released: 2025-10-10
 authors:
   - family-names: Galib
@@ -16,13 +16,15 @@ authors:
     orcid: "https://orcid.org/0000-0001-5518-2890"
 repository-code: "https://github.com/galib9690/pygeoglim"
 url: "https://github.com/galib9690/pygeoglim"
-abstract: "pygeoglim is a Python package designed for geospatial data analysis and visualization of GLIMS (Global Land Ice Measurements from Space) glacier datasets. It provides tools for accessing, processing, and analyzing glacier inventory data to support glaciological research and climate change studies."
+abstract: "pygeoglim is a Python package for extracting lithological and hydrogeological attributes—specifically from the GLiM and GLHYMPS datasets—for any region or watershed in CONUS and globally. Built for hydrological modeling, large-sample hydrology, and Earth system research, pygeoglim automates extraction of geological classes, permeability, porosity, and spatial analysis tools for integration with other hydrological datasets."
 keywords:
-  - glaciology
-  - geospatial-data
-  - glims
-  - remote-sensing
-  - python
+  - lithology
+  - hydrogeology
+  - GLiM
+  - GLHYMPS
+  - Python
+  - hydrology
+  - geospatial
 license: MIT
 identifiers:
   - type: doi
