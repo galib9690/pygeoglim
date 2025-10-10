@@ -2,23 +2,27 @@ cff-version: 1.2.0
 message: "If you use this software, please cite it as below."
 title: "pygeoglim: Python package for geospatial data analysis and visualization for GLIMS glacier datasets"
 version: v1.0.6
-date-released: 2025-03-17
+date-released: 2025-10-10
 authors:
-  - family-names: Talukdar
-    given-names: Galib Hasan
-    orcid: https://orcid.org/0000-0002-4387-2945
-  - family-names: Khosravi
-    given-names: Mahsa
-    orcid: https://orcid.org/0009-0003-1827-7579
+  - family-names: Galib
+    given-names: Mohammad
+    email: mgalib@purdue.edu
+    affiliation: "Lyles School of Civil Engineering, Purdue University"
+    orcid: "https://orcid.org/0000-0001-8593-9110"
+  - family-names: Merwade
+    given-names: Venkatesh
+    email: vmerwade@purdue.edu
+    affiliation: "Lyles School of Civil Engineering, Purdue University"
+    orcid: "https://orcid.org/0000-0001-5518-2890"
 repository-code: "https://github.com/galib9690/pygeoglim"
 url: "https://github.com/galib9690/pygeoglim"
+abstract: "pygeoglim is a Python package designed for geospatial data analysis and visualization of GLIMS (Global Land Ice Measurements from Space) glacier datasets. It provides tools for accessing, processing, and analyzing glacier inventory data to support glaciological research and climate change studies."
 keywords:
   - glaciology
   - geospatial-data
   - glims
   - remote-sensing
   - python
-  - glacier
 license: MIT
 identifiers:
   - type: doi
