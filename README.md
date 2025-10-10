@@ -9,7 +9,7 @@
 
 If you use this package, please cite:
 
-> Galib, M., & Merwade, V. (2025). pygeoglim: Python Utilities for Global Lithologic Map Integration (v1.0.6). Zenodo. https://doi.org/10.5281/zenodo.17314746
+> Galib, M., & Merwade, V. (2025). pygeoglim: A Python package for extracting geological attributes from GLiM and GLHYMPS datasets. Zenodo. https://doi.org/10.5281/zenodo.17314746
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.17314746.svg)](https://doi.org/10.5281/zenodo.17314746)
 
