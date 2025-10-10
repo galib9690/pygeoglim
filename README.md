@@ -1,13 +1,19 @@
 # pygeoglim
-
 [![PyPI version](https://badge.fury.io/py/pygeoglim.svg)](https://badge.fury.io/py/pygeoglim)
 [![Python versions](https://img.shields.io/pypi/pyversions/pygeoglim.svg)](https://pypi.org/project/pygeoglim/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 **`pygeoglim`** is a Python package for extracting geology attributes—specifically lithological and hydrogeological properties—from **GLiM** and **GLHYMPS** datasets for any region or watershed in CONUS region. It is built for use in hydrological modeling, large-sample hydrology, and Earth system research.
 
-## 📋 Table of Contents
+## Citation
 
+If you use this package, please cite:
+
+> Galib, M., & Merwade, V. (2025). pygeoglim: Python Utilities for Global Lithologic Map Integration (v1.0.6). Zenodo. https://doi.org/10.5281/zenodo.17314746
+
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.17314746.svg)](https://doi.org/10.5281/zenodo.17314746)
+
+## 📋 Table of Contents
 - [Installation](#-installation)
 - [Quick Start](#-quick-start)
 - [Extracted Attributes](#-extracted-attributes)
@@ -39,7 +45,6 @@ pip install -e .
 ## 🚀 Quick Start
 
 ### Basic Usage
-
 ```python
 from pygeoglim import load_geometry, glim_attributes, glhymps_attributes
 
@@ -53,40 +58,35 @@ glim = glim_attributes(geom)
 glhymps = glhymps_attributes(geom)
 
 # Combine results
-attributes = {glim, glhymps}
-print(attributes)
+results = {**glim, **glhymps}
+print(results)
 ```
 
-### Using Shapefile Input
-
-You can also pass a shapefile path instead of a bounding box:
-
+### Using Shapefile
 ```python
+from pygeoglim import load_geometry, glim_attributes
+
 # Load geometry from shapefile
-geom = load_geometry(shapefile="path/to/watershed.shp")
+geom = load_geometry(shapefile="path/to/your/watershed.shp")
 
 # Extract attributes
-glim = glim_attributes(geom)
-glhymps = glhymps_attributes(geom)
+attributes = glim_attributes(geom)
 ```
 
 ## 📊 Extracted Attributes
 
-### Lithology (GLiM Dataset)
-| Attribute | Description |
-|-----------|-------------|
-| `geol_1st_class` | Dominant lithology class |
-| `glim_1st_class_frac` | Fraction of dominant class |
-| `geol_2nd_class` | Second most common lithology class |
-| `glim_2nd_class_frac` | Fraction of second most common class |
-| `carbonate_rocks_frac` | Fraction of carbonate rocks |
+### GLiM Attributes (Lithology)
+| **Attribute** | **Description** | **Unit** |
+|---------------|-----------------|----------|
+| `xx_frac` | Fraction of lithology class (e.g., su_frac, ss_frac) | - |
+| `first_level_*` | First-level lithology class fractions | - |
+| `second_level_*` | Second-level lithology class fractions | - |
 
-### Hydrogeology (GLHYMPS Dataset)
-| Attribute | Description | Units |
-|-----------|-------------|-------|
-| `geol_porosity` | Area-weighted porosity | fraction |
-| `geol_permeability` | Area-weighted permeability | log₁₀ m² |
-| `geol_permeability_linear` | Permeability (linear scale) | m² |
+### GLHYMPS Attributes (Hydrogeology)
+| **Attribute** | **Description** | **Unit** |
+|---------------|-----------------|----------|
+| `porosity` | Effective porosity | - |
+| `permeability` | Permeability | m² |
 | `hydraulic_conductivity` | Hydraulic conductivity | m/s |
 
 ## 🌍 Data Sources
@@ -101,7 +101,6 @@ glhymps = glhymps_attributes(geom)
 - **DOI**: [10.1002/2014GL059856](https://doi.org/10.1002/2014GL059856)
 
 ## 📋 Requirements
-
 - **Python** ≥ 3.8
 - **geopandas** ≥ 0.12
 - **shapely** ≥ 1.8
@@ -138,7 +137,6 @@ Distributed under the MIT License. See [LICENSE](LICENSE) for more information.
 
 **Mohammad Galib**  
 Purdue University  
-
 - 📧 Email: [mgalib@purdue.edu]
 - 🌐 GitHub: [@galib9690](https://github.com/galib9690)
 - 🏛️ Institution: [Purdue University](https://www.purdue.edu/)
