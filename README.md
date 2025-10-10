@@ -13,7 +13,10 @@ If you use this package, please cite:
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.17314746.svg)](https://doi.org/10.5281/zenodo.17314746)
 
+Please also cite the original GLiM and GLHYMPS datasets as referenced in the [Data Sources](#-data-sources) section.
+
 ## 📋 Table of Contents
+
 - [Installation](#-installation)
 - [Quick Start](#-quick-start)
 - [Extracted Attributes](#-extracted-attributes)
@@ -67,26 +70,34 @@ print(results)
 from pygeoglim import load_geometry, glim_attributes
 
 # Load geometry from shapefile
-geom = load_geometry(shapefile="path/to/your/watershed.shp")
-
-# Extract attributes
-attributes = glim_attributes(geom)
+geom = load_geometry(shapefile='path/to/watershed.shp')
+glim = glim_attributes(geom)
 ```
 
-## 📊 Extracted Attributes
+### Using WKT String
+```python
+from pygeoglim import load_geometry, glhymps_attributes
 
-### GLiM Attributes (Lithology)
-| **Attribute** | **Description** | **Unit** |
-|---------------|-----------------|----------|
-| `xx_frac` | Fraction of lithology class (e.g., su_frac, ss_frac) | - |
-| `first_level_*` | First-level lithology class fractions | - |
-| `second_level_*` | Second-level lithology class fractions | - |
+# Load geometry from WKT
+wkt = 'POLYGON((-85.5 39.5, -85.0 39.5, -85.0 40.0, -85.5 40.0, -85.5 39.5))'
+geom = load_geometry(wkt=wkt)
+glhymps = glhymps_attributes(geom)
+```
 
-### GLHYMPS Attributes (Hydrogeology)
-| **Attribute** | **Description** | **Unit** |
-|---------------|-----------------|----------|
-| `porosity` | Effective porosity | - |
-| `permeability` | Permeability | m² |
+## 🗺️ Extracted Attributes
+
+### GLiM Attributes
+| Attribute Name | Description | Unit |
+|----------------|-------------|------|
+| `xx_area` | Area fraction for lithology class `xx` (e.g., `su_area` for siliciclastic sedimentary rock) | - |
+| `dominant_lithology` | Most prevalent lithology class | - |
+| `lithology_diversity` | Number of distinct lithology classes | - |
+
+### GLHYMPS Attributes
+| Attribute Name | Description | Unit |
+|----------------|-------------|------|
+| `mean_porosity` | Mean porosity | - |
+| `mean_log_permeability` | Mean log10 permeability | log10(m²) |
 | `hydraulic_conductivity` | Hydraulic conductivity | m/s |
 
 ## 🌍 Data Sources
@@ -101,26 +112,12 @@ attributes = glim_attributes(geom)
 - **DOI**: [10.1002/2014GL059856](https://doi.org/10.1002/2014GL059856)
 
 ## 📋 Requirements
+
 - **Python** ≥ 3.8
 - **geopandas** ≥ 0.12
 - **shapely** ≥ 1.8
 - **numpy** ≥ 1.20
 - **pandas** ≥ 1.3
-
-## 📖 Citation
-
-If you use this package in your research, please cite:
-
-```bibtex
-@software{galib2025pygeoglim,
-  author = {Galib, Mohammad},
-  title = {pygeoglim: A Python package for extracting geological attributes from GLiM and GLHYMPS datasets},
-  url = {https://github.com/galib9690/pygeoglim},
-  year = {2025}
-}
-```
-
-Please also cite the original datasets (GLiM and GLHYMPS) as referenced in the [Data Sources](#-data-sources) section.
 
 ## 🐛 Issues and Support
 
@@ -142,5 +139,4 @@ Purdue University
 - 🏛️ Institution: [Purdue University](https://www.purdue.edu/)
 
 ---
-
 **Made with ❤️**
