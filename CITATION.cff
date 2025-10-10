@@ -1,6 +1,6 @@
 cff-version: 1.2.0
 message: "If you use this software, please cite it as below."
-title: "pygeoglim: Python Utilities for Global Lithologic Map Integration"
+title: "pygeoglim: A Python package for extracting geological attributes from GLiM and GLHYMPS datasets"
 version: 1.0.6
 date-released: 2025-10-10
 authors:
@@ -16,7 +16,7 @@ authors:
     orcid: "https://orcid.org/0000-0001-5518-2890"
 repository-code: "https://github.com/galib9690/pygeoglim"
 url: "https://github.com/galib9690/pygeoglim"
-abstract: "pygeoglim is a Python package for extracting lithological and hydrogeological attributes—specifically from the GLiM and GLHYMPS datasets—for any region or watershed in CONUS and globally. Built for hydrological modeling, large-sample hydrology, and Earth system research, pygeoglim automates extraction of geological classes, permeability, porosity, and spatial analysis tools for integration with other hydrological datasets."
+abstract: "pygeoglim is a Python package for extracting lithological and hydrogeological attributes—specifically from the GLiM and GLHYMPS datasets—for any region or watershed in CONUS. Built for hydrological modeling, large-sample hydrology, and Earth system research, pygeoglim automates extraction of geological classes, permeability, porosity, and spatial analysis tools for integration with other hydrological datasets."
 keywords:
   - lithology
   - hydrogeology
