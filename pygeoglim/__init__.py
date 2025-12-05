@@ -22,7 +22,7 @@ from .utils import load_geometry
 from .glim import fetch_glim_roi, glim_attributes
 from .glhymps import fetch_glhymps_roi, glhymps_attributes, camels_geology_attrs
 
-__version__ = "1.0.0"
+__version__ = "1.0.7"
 __author__ = "Mohammad Galib"
 __description__ = "Fast access to GLiM and GLHYMPS geology attributes for watersheds"
 
