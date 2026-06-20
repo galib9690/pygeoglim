@@ -35,8 +35,8 @@ def plot_lithology(
     """
     import matplotlib.pyplot as plt
     import matplotlib.patches as mpatches
-    import geopandas as _gpd  # noqa: F401 (for GeoSeries below)
-    from pygeoglim.glim import decode_glim_lithology
+    import geopandas as _gpd
+    from pygeoglim.glim import GLIM_LEVEL_1
 
     fig, ax = plt.subplots(figsize=figsize)
 
@@ -54,7 +54,8 @@ def plot_lithology(
 
     patches = [
         mpatches.Patch(
-            color=colour_map[c], label=f"{c} — {decode_glim_lithology(c)}"
+            color=colour_map[c],
+            label=f"{c} — {GLIM_LEVEL_1.get(c.lower(), c)}",
         )
         for c in lith_classes
     ]

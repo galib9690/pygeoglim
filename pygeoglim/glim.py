@@ -180,7 +180,9 @@ def fetch_glim(
     if not clip:
         return raw.to_crs("EPSG:4326")
 
-    # Exact polygon clip
+    # Exact polygon clip — make_valid guards against TopologyException from source data
+    import shapely
+    raw = raw.assign(geometry=shapely.make_valid(raw.geometry.values))
     catchment_union = catchment.dissolve().geometry.iloc[0]
     clipped = raw[raw.geometry.intersects(catchment_union)].copy()
     clipped = clipped.assign(geometry=clipped.geometry.intersection(catchment_union))

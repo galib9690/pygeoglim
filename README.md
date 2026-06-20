@@ -43,33 +43,47 @@ pip install -e .
 ### Basic Usage
 
 ```python
-from pygeoglim import load_geometry, glim_attributes, glhymps_attributes
+from shapely.geometry import box
+from pygeoglim import fetch_glim, fetch_glhymps, glim_attributes, glhymps_attributes
 
-# Load geometry from bounding box
-geom = load_geometry(bbox=[-85.5, 39.5, -85.0, 40.0])
+# Define a watershed bounding box (lon_min, lat_min, lon_max, lat_max)
+watershed = box(-85.5, 39.5, -85.0, 40.0)
 
-# Extract lithology attributes (GLiM)
-glim = glim_attributes(geom)
+# Fetch raw geology polygons (GeoDataFrames)
+lithology  = fetch_glim(watershed)      # GLiM — lithology polygons
+hydrogeol  = fetch_glhymps(watershed)   # GLHYMPS — permeability polygons
 
-# Extract hydrogeology attributes (GLHYMPS)
-glhymps = glhymps_attributes(geom)
+# CAMELS-style attribute summaries
+glim   = glim_attributes(lithology)
+glhymp = glhymps_attributes(hydrogeol)
 
-# Combine results
-attributes = {glim, glhymps}
-print(attributes)
+print(glim)    # {'geol_1st_class': ..., 'carbonate_rocks_frac': ..., ...}
+print(glhymp)  # {'geol_porosity': ..., 'geol_permeability': ..., ...}
 ```
+
+### Global Watersheds (non-CONUS)
+
+```python
+from shapely.geometry import box
+from pygeoglim import fetch_glim, fetch_glhymps
+
+# Rhine headwaters, Germany — pass region="global" for non-CONUS
+rhine = box(6.0, 46.5, 8.5, 48.5)
+
+lithology = fetch_glim(rhine, region="global")
+hydrogeol = fetch_glhymps(rhine, region="global")
+```
+
+> Requires a HuggingFace token for global tiles. Run `huggingface-cli login` once or set the `HF_TOKEN` environment variable.
 
 ### Using Shapefile Input
 
-You can also pass a shapefile path instead of a bounding box:
-
 ```python
-# Load geometry from shapefile
-geom = load_geometry(shapefile="path/to/watershed.shp")
+from pygeoglim import load_geometry, fetch_glim
 
-# Extract attributes
-glim = glim_attributes(geom)
-glhymps = glhymps_attributes(geom)
+# Load geometry from a shapefile
+geom = load_geometry(shapefile="path/to/watershed.shp")
+lithology = fetch_glim(geom)
 ```
 
 ## 📊 Extracted Attributes
@@ -105,11 +119,12 @@ glhymps = glhymps_attributes(geom)
 
 ## 📋 Requirements
 
-- **Python** ≥ 3.8
-- **geopandas** ≥ 0.12
-- **shapely** ≥ 1.8
-- **numpy** ≥ 1.20
-- **pandas** ≥ 1.3
+- **Python** ≥ 3.9
+- **geopandas** ≥ 0.13
+- **shapely** ≥ 2.0
+- **numpy** ≥ 1.24
+- **pyproj** ≥ 3.6
+- **huggingface_hub** ≥ 0.20
 
 ## 📖 Citation
 
