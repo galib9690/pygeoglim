@@ -81,10 +81,19 @@ GLIM_LEVEL_3: dict[str, str] = {
 
 
 def decode_glim_lithology(code: str) -> str:
-    """Decode a 6-character GLiM code (xxyyzz) to a human-readable string."""
-    if not code or len(code) != 6:
+    """Decode a GLiM lithology code to a human-readable string.
+
+    Accepts either a 2-character primary code (e.g. ``"ss"``) or the full
+    6-character code (e.g. ``"ssadbs"``).
+    """
+    if not code:
         return code
-    xx, yy, zz = code[0:2].lower(), code[2:4].lower(), code[4:6].lower()
+    code_l = code.lower()
+    if len(code_l) == 2:
+        return GLIM_LEVEL_1.get(code_l, code)
+    if len(code_l) != 6:
+        return code
+    xx, yy, zz = code_l[0:2], code_l[2:4], code_l[4:6]
     parts = [GLIM_LEVEL_1.get(xx, f"Unknown({xx})")]
     l2 = GLIM_LEVEL_2.get(yy, "")
     l3 = GLIM_LEVEL_3.get(zz, "")
