@@ -132,10 +132,11 @@ If you use this package in your research, please cite:
 
 ```bibtex
 @software{galib2025pygeoglim,
-  author = {Galib, Mohammad},
-  title = {pygeoglim: A Python package for extracting geological attributes from GLiM and GLHYMPS datasets},
-  url = {https://github.com/galib9690/pygeoglim},
-  year = {2025}
+  author = {Galib, Mohammad and Merwade, Venkatesh},
+  title  = {pygeoglim: A Python package for extracting geological attributes from GLiM and GLHYMPS datasets},
+  url    = {https://github.com/galib9690/pygeoglim},
+  doi    = {10.5281/zenodo.17314746},
+  year   = {2025}
 }
 ```
 
