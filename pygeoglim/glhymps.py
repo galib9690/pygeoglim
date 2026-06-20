@@ -16,6 +16,9 @@ def fetch_glhymps_roi(
     geometry,
     crs: str = "EPSG:4326",
     region: str = "conus",
+    *,
+    token: str | None = None,
+    offline: bool = False,
 ) -> gpd.GeoDataFrame:
     """
     Fetch GLHYMPS polygons that overlap *geometry*.
@@ -34,8 +37,14 @@ def fetch_glhymps_roi(
     GeologyError
         If the requested region tile is not available.
     """
-    tile = resolve_glhymps_tile(region)
     catchment_wgs84 = as_geodataframe(geometry, crs).to_crs("EPSG:4326")
+
+    if region == "global":
+        from pygeoglim._global_fetch import fetch_global_roi
+        gdf = fetch_global_roi("glhymps", catchment_wgs84, token=token, offline=offline)
+        return gdf.to_crs(crs)
+
+    tile = resolve_glhymps_tile(region)
     catchment_union = catchment_wgs84.dissolve().geometry.iloc[0]
 
     try:
@@ -87,7 +96,7 @@ def glhymps_attributes(
     crs: str = "EPSG:4326",
     region: str = "conus",
     *,
-    cache_dir=None,
+    token: str | None = None,
     offline: bool = False,
     return_provenance: bool = False,
 ) -> dict:
@@ -101,11 +110,12 @@ def glhymps_attributes(
     crs:
         Input CRS (default WGS-84).
     region:
-        Provider region — currently ``"conus"`` only.
-    cache_dir:
-        Override the local tile cache directory.
+        Provider region — ``"conus"`` or ``"global"``.
+    token:
+        HuggingFace token for private repo access.  Falls back to ``HF_TOKEN``
+        env var or ``huggingface-cli login`` config.
     offline:
-        If True, raise an error rather than downloading tiles.
+        If True, use only the HF Hub local cache; raise if a tile is missing.
     return_provenance:
         If True, return a ``GeologyResult`` with provenance instead of a plain dict.
 
@@ -121,7 +131,7 @@ def glhymps_attributes(
         If the region tile is unavailable or no data intersects the geometry.
     """
     catchment = as_geodataframe(geometry, crs).to_crs("EPSG:4326")
-    glhymps = fetch_glhymps_roi(catchment, crs="EPSG:4326", region=region)
+    glhymps = fetch_glhymps_roi(catchment, crs="EPSG:4326", region=region, token=token, offline=offline)
 
     if glhymps.empty:
         raise GeologyError(

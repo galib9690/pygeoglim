@@ -92,6 +92,9 @@ def fetch_glim_roi(
     geometry,
     crs: str = "EPSG:4326",
     region: str = "conus",
+    *,
+    token: str | None = None,
+    offline: bool = False,
 ) -> gpd.GeoDataFrame:
     """
     Fetch GLiM polygons that overlap *geometry*.
@@ -111,9 +114,14 @@ def fetch_glim_roi(
     GeologyError
         If the requested region tile is not available.
     """
-    tile = resolve_glim_tile(region)
     catchment_wgs84 = as_geodataframe(geometry, crs).to_crs("EPSG:4326")
 
+    if region == "global":
+        from pygeoglim._global_fetch import fetch_global_roi
+        gdf = fetch_global_roi("glim", catchment_wgs84, token=token, offline=offline)
+        return gdf.to_crs(crs)
+
+    tile = resolve_glim_tile(region)
     bounds = catchment_wgs84.total_bounds          # (minx, miny, maxx, maxy)
     bbox_native = (
         gpd.GeoDataFrame(geometry=[box(*bounds)], crs="EPSG:4326")
@@ -133,7 +141,7 @@ def glim_attributes(
     region: str = "conus",
     decode_names: bool = True,
     *,
-    cache_dir=None,
+    token: str | None = None,
     offline: bool = False,
     return_provenance: bool = False,
 ) -> dict:
@@ -150,10 +158,11 @@ def glim_attributes(
         Provider region — currently ``"conus"`` only.
     decode_names:
         If True (default), return full descriptive names for lithology codes.
-    cache_dir:
-        Override the local tile cache directory.
+    token:
+        HuggingFace token for private repo access.  Falls back to the
+        ``HF_TOKEN`` environment variable or ``huggingface-cli login`` config.
     offline:
-        If True, raise an error rather than downloading tiles.
+        If True, use only the HF Hub local cache; raise if a tile is missing.
     return_provenance:
         If True, return a ``GeologyResult`` with provenance instead of a plain dict.
 
@@ -169,7 +178,7 @@ def glim_attributes(
         If the region tile is unavailable or no data intersects the geometry.
     """
     catchment = as_geodataframe(geometry, crs).to_crs("EPSG:4326")
-    glim = fetch_glim_roi(catchment, crs="EPSG:4326", region=region)
+    glim = fetch_glim_roi(catchment, crs="EPSG:4326", region=region, token=token, offline=offline)
 
     if glim.empty:
         raise GeologyError(

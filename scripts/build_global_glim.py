@@ -115,6 +115,7 @@ def build(
     version: str,
     permission_evidence: Path | None,
     pfaf2_filter: list[str] | None,
+    personal_use: bool = False,
 ) -> None:
     try:
         import geopandas as gpd
@@ -124,6 +125,7 @@ def build(
 
     public_release_allowed = False
     permission_notes = "Awaiting CCGM written redistribution permission."
+
     if permission_evidence is not None:
         if not permission_evidence.exists():
             sys.exit(
@@ -133,6 +135,14 @@ def build(
         public_release_allowed = True
         permission_notes = f"Permission granted. Evidence: {permission_evidence.name}"
         print(f"✓ Permission evidence found: {permission_evidence}")
+    elif personal_use:
+        public_release_allowed = True
+        permission_notes = (
+            "Personal research use only. Not for redistribution. "
+            "GLiM requires CCGM written permission for public redistribution."
+        )
+        print("⚠ Building for PERSONAL USE ONLY (public_release_allowed=true in manifest).")
+        print("  Do NOT upload these tiles to a public repository without CCGM permission.")
     else:
         print("⚠ Building WITHOUT public release permission (manifest.public_release_allowed=false)")
         print("  Shards will be built locally but cannot be published until CCGM permission is obtained.")
@@ -237,6 +247,12 @@ def main() -> None:
                              "If provided and exists, sets public_release_allowed=true.")
     parser.add_argument("--pfaf2", nargs="+", metavar="CODE",
                         help="Restrict to these Pfafstetter level-2 codes (e.g. 74 75)")
+    parser.add_argument("--personal-use", action="store_true",
+                        help=(
+                            "Mark tiles for personal research use (sets public_release_allowed=true "
+                            "in manifest without requiring CCGM evidence file). "
+                            "DO NOT publish these tiles publicly."
+                        ))
     args = parser.parse_args()
 
     build(
@@ -245,6 +261,7 @@ def main() -> None:
         version=args.version,
         permission_evidence=args.permission_evidence,
         pfaf2_filter=args.pfaf2,
+        personal_use=args.personal_use,
     )
 
 
