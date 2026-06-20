@@ -3,12 +3,14 @@ from __future__ import annotations
 
 import geopandas as gpd
 import numpy as np
-from pyproj import Geod
-from shapely.geometry import box, shape
+from shapely.geometry import box
 
 from pygeoglim._providers import GeologyError, resolve_glim_tile
+from pygeoglim.geometry import as_geodataframe, geodesic_area_km2
 
-_GEOD = Geod(ellps="WGS84")
+# Private aliases kept for any callers that imported these from this module directly
+_as_geodataframe = as_geodataframe
+_geodesic_area_km2 = geodesic_area_km2
 
 # ── Lithology code decoder ────────────────────────────────────────────────────
 # Based on Hartmann & Moosdorf (2012) Table A2
@@ -84,29 +86,6 @@ def decode_glim_lithology(code: str) -> str:
     return " — ".join(parts)
 
 
-# ── Geometry helpers ──────────────────────────────────────────────────────────
-
-def _as_geodataframe(geometry, crs: str = "EPSG:4326") -> gpd.GeoDataFrame:
-    """Coerce geometry to a GeoDataFrame in *crs*."""
-    if isinstance(geometry, gpd.GeoDataFrame):
-        return geometry.to_crs(crs)
-    if isinstance(geometry, dict):
-        geom = shape(geometry)
-    elif hasattr(geometry, "__geo_interface__"):
-        geom = shape(geometry.__geo_interface__)
-    else:
-        geom = geometry
-    return gpd.GeoDataFrame(geometry=[geom], crs=crs)
-
-
-def _geodesic_area_km2(gdf: gpd.GeoDataFrame) -> np.ndarray:
-    """Geodesic polygon area in km² — correct globally, no equal-area bias."""
-    gdf_wgs84 = gdf.to_crs("EPSG:4326")
-    return np.array(
-        [abs(_GEOD.geometry_area_perimeter(geom)[0]) / 1e6 for geom in gdf_wgs84.geometry]
-    )
-
-
 # ── Fetch ─────────────────────────────────────────────────────────────────────
 
 def fetch_glim_roi(
@@ -133,7 +112,7 @@ def fetch_glim_roi(
         If the requested region tile is not available.
     """
     tile = resolve_glim_tile(region)
-    catchment_wgs84 = _as_geodataframe(geometry, crs).to_crs("EPSG:4326")
+    catchment_wgs84 = as_geodataframe(geometry, crs).to_crs("EPSG:4326")
 
     bounds = catchment_wgs84.total_bounds          # (minx, miny, maxx, maxy)
     bbox_native = (
@@ -153,6 +132,10 @@ def glim_attributes(
     crs: str = "EPSG:4326",
     region: str = "conus",
     decode_names: bool = True,
+    *,
+    cache_dir=None,
+    offline: bool = False,
+    return_provenance: bool = False,
 ) -> dict:
     """
     Area-weighted GLiM lithology attributes for a watershed or region.
@@ -167,6 +150,12 @@ def glim_attributes(
         Provider region — currently ``"conus"`` only.
     decode_names:
         If True (default), return full descriptive names for lithology codes.
+    cache_dir:
+        Override the local tile cache directory.
+    offline:
+        If True, raise an error rather than downloading tiles.
+    return_provenance:
+        If True, return a ``GeologyResult`` with provenance instead of a plain dict.
 
     Returns
     -------
@@ -179,7 +168,7 @@ def glim_attributes(
     GeologyError
         If the region tile is unavailable or no data intersects the geometry.
     """
-    catchment = _as_geodataframe(geometry, crs).to_crs("EPSG:4326")
+    catchment = as_geodataframe(geometry, crs).to_crs("EPSG:4326")
     glim = fetch_glim_roi(catchment, crs="EPSG:4326", region=region)
 
     if glim.empty:
@@ -204,7 +193,7 @@ def glim_attributes(
         )
 
     # Geodesic area — correct globally, no EPSG:5070 assumption
-    glim_clip = glim_clip.assign(_area_km2=_geodesic_area_km2(glim_clip))
+    glim_clip = glim_clip.assign(_area_km2=geodesic_area_km2(glim_clip))
 
     lithology_col = "Litho"
     summary = (
@@ -223,7 +212,7 @@ def glim_attributes(
         sum(v for k, v in summary.items() if str(k).lower().startswith("sc")) / total
     )
 
-    return {
+    attrs = {
         "geol_1st_class": decode_glim_lithology(code_1st) if decode_names else code_1st,
         "glim_1st_class_frac": frac_1st,
         "geol_2nd_class": (
@@ -232,3 +221,20 @@ def glim_attributes(
         "glim_2nd_class_frac": frac_2nd,
         "carbonate_rocks_frac": carbonate_frac,
     }
+
+    if return_provenance:
+        from pygeoglim.contracts import GeologyResult, Provenance
+        return GeologyResult(
+            attributes=attrs,
+            provenance=Provenance(
+                dataset="glim",
+                version="1.0",
+                tiles_used=[region],
+                roi_wgs84_bbox=tuple(catchment.total_bounds),
+                feature_count=len(glim_clip),
+                area_km2=float(total),
+                source_provider=f"hf:glim:{region}",
+            ),
+        )
+
+    return attrs

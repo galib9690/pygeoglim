@@ -11,6 +11,12 @@ Quick start
     glim   = glim_attributes(watershed)
     glhymp = glhymps_attributes(watershed)
 
+Provenance-aware usage
+----------------------
+    result = glim_attributes(watershed, return_provenance=True)
+    print(result.attributes)      # dict of geology attributes
+    print(result.provenance)      # Provenance(dataset="glim", tiles_used=["conus"], ...)
+
 Data coverage
 -------------
 - CONUS: available now (HuggingFace public tiles)
@@ -23,6 +29,7 @@ Typed error
 from __future__ import annotations
 
 from pygeoglim._providers import GeologyError
+from pygeoglim.contracts import GeologyResult, Provenance, TileRecord, DatasetManifest
 from pygeoglim.glhymps import camels_geology_attrs, fetch_glhymps_roi, glhymps_attributes
 from pygeoglim.glim import (
     GLIM_LEVEL_1,
@@ -32,17 +39,26 @@ from pygeoglim.glim import (
 )
 from pygeoglim.utils import load_geometry
 
-__version__ = "1.1.0"
+__version__ = "1.2.0"
 __author__ = "Mohammad Galib"
 
 __all__ = [
+    # Errors
     "GeologyError",
-    "load_geometry",
+    # Result types
+    "GeologyResult",
+    "Provenance",
+    "TileRecord",
+    "DatasetManifest",
+    # High-level attribute functions
     "glim_attributes",
     "glhymps_attributes",
+    # Low-level fetch functions
     "fetch_glim_roi",
     "fetch_glhymps_roi",
+    # Utilities
     "camels_geology_attrs",
     "decode_glim_lithology",
     "GLIM_LEVEL_1",
+    "load_geometry",
 ]

@@ -3,12 +3,9 @@ from __future__ import annotations
 
 import geopandas as gpd
 import numpy as np
-from pyproj import Geod
 
 from pygeoglim._providers import GeologyError, resolve_glhymps_tile
-from pygeoglim.glim import _as_geodataframe, _geodesic_area_km2
-
-_GEOD = Geod(ellps="WGS84")
+from pygeoglim.geometry import as_geodataframe, geodesic_area_km2
 
 # Column names in the GLHYMPS CONUS tile (from dataset inspection)
 _K_COL = "logK_Ice_x"     # permeability as logK × 100 (i.e., log10(k_m²) × 100)
@@ -38,7 +35,7 @@ def fetch_glhymps_roi(
         If the requested region tile is not available.
     """
     tile = resolve_glhymps_tile(region)
-    catchment_wgs84 = _as_geodataframe(geometry, crs).to_crs("EPSG:4326")
+    catchment_wgs84 = as_geodataframe(geometry, crs).to_crs("EPSG:4326")
     catchment_union = catchment_wgs84.dissolve().geometry.iloc[0]
 
     try:
@@ -68,7 +65,7 @@ def camels_geology_attrs(glhymps_clip: gpd.GeoDataFrame) -> tuple[float, float]:
         ``(geol_permeability_log10, geol_porosity)`` — log10(k in m²), fraction
     """
     gdf = glhymps_clip.copy()
-    gdf["_area_km2"] = _geodesic_area_km2(gdf)
+    gdf["_area_km2"] = geodesic_area_km2(gdf)
     gdf = gdf[gdf["_area_km2"] > 0].copy()
 
     if gdf.empty:
@@ -89,6 +86,10 @@ def glhymps_attributes(
     geometry,
     crs: str = "EPSG:4326",
     region: str = "conus",
+    *,
+    cache_dir=None,
+    offline: bool = False,
+    return_provenance: bool = False,
 ) -> dict:
     """
     Area-weighted GLHYMPS hydrogeology attributes for a watershed or region.
@@ -101,6 +102,12 @@ def glhymps_attributes(
         Input CRS (default WGS-84).
     region:
         Provider region — currently ``"conus"`` only.
+    cache_dir:
+        Override the local tile cache directory.
+    offline:
+        If True, raise an error rather than downloading tiles.
+    return_provenance:
+        If True, return a ``GeologyResult`` with provenance instead of a plain dict.
 
     Returns
     -------
@@ -113,7 +120,7 @@ def glhymps_attributes(
     GeologyError
         If the region tile is unavailable or no data intersects the geometry.
     """
-    catchment = _as_geodataframe(geometry, crs).to_crs("EPSG:4326")
+    catchment = as_geodataframe(geometry, crs).to_crs("EPSG:4326")
     glhymps = fetch_glhymps_roi(catchment, crs="EPSG:4326", region=region)
 
     if glhymps.empty:
@@ -136,7 +143,7 @@ def glhymps_attributes(
             message="GLHYMPS polygons do not intersect the watershed geometry.",
         )
 
-    glhymps_clip = glhymps_clip.assign(_area_km2=_geodesic_area_km2(glhymps_clip))
+    glhymps_clip = glhymps_clip.assign(_area_km2=geodesic_area_km2(glhymps_clip))
     total = glhymps_clip["_area_km2"].sum()
 
     porosity = float(
@@ -148,9 +155,26 @@ def glhymps_attributes(
     k_log10 = float(np.log10(k_mean)) if k_mean > 0 else float("nan")
     hydraulic_cond = k_mean * 1e7 if k_mean > 0 else float("nan")
 
-    return {
+    attrs = {
         "geol_porosity": porosity,
         "geol_permeability": k_log10,
         "geol_permeability_linear": k_mean,
         "hydraulic_conductivity": hydraulic_cond,
     }
+
+    if return_provenance:
+        from pygeoglim.contracts import GeologyResult, Provenance
+        return GeologyResult(
+            attributes=attrs,
+            provenance=Provenance(
+                dataset="glhymps",
+                version="1.0",
+                tiles_used=[region],
+                roi_wgs84_bbox=tuple(catchment.total_bounds),
+                feature_count=len(glhymps_clip),
+                area_km2=float(total),
+                source_provider=f"hf:glhymps:{region}",
+            ),
+        )
+
+    return attrs
