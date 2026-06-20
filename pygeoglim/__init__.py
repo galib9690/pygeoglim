@@ -57,6 +57,7 @@ from pygeoglim.glim import (
     glim_attributes,
 )
 from pygeoglim.utils import load_geometry
+from pygeoglim.viz import plot_lithology, plot_permeability
 
 __version__ = "1.3.0"
 __author__ = "Mohammad Galib"
@@ -85,4 +86,7 @@ __all__ = [
     "GLIM_LEVEL_2",
     "GLIM_LEVEL_3",
     "load_geometry",
+    # Visualization
+    "plot_lithology",
+    "plot_permeability",
 ]

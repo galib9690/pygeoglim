@@ -34,6 +34,7 @@ _EXPECTED_MODULES = {
     "providers/base",
     "providers/hf",
     "providers/local",
+    "viz",
 }
 
 
