@@ -6,7 +6,7 @@
 [![Downloads](https://static.pepy.tech/badge/pygeoglim)](https://pepy.tech/project/pygeoglim)
 
 
-**`pygeoglim`** is a Python package for extracting geology attributes—specifically lithological and hydrogeological properties—from **GLiM** and **GLHYMPS** datasets for any region or watershed in CONUS region. It is built for use in hydrological modeling, large-sample hydrology, and Earth system research.
+**`pygeoglim`** is a Python package for fetching raw lithology and hydrogeology data from **GLiM** and **GLHYMPS 2.0** for any watershed on Earth. It returns GeoDataFrames of geology polygons that callers can analyse freely, with CAMELS-style attribute summaries as an integrated convenience layer. Built for hydrological modelling, large-sample hydrology, and Earth system research.
 
 ## 📋 Table of Contents
 
@@ -94,13 +94,14 @@ glhymps = glhymps_attributes(geom)
 ## 🌍 Data Sources
 
 ### GLiM – Global Lithological Map
-- **Citation**: Hartmann, J., & Moosdorf, N. (2012). The new global lithological map database GLiM: A representation of rock properties at the Earth surface. *Geochemistry, Geophysics, Geosystems*, 13, Q12004.
-- **DOI**: [10.1029/2012GC004370](https://doi.org/10.1029/2012GC004370)
+- **Citation**: Hartmann, J. & Moosdorf, N. (2012). The new global lithological map database GLiM: A representation of rock properties at the Earth surface. *Geochemistry, Geophysics, Geosystems*, 13. [doi:10.1029/2012GC004370](https://doi.org/10.1029/2012GC004370)
 - **Dataset DOI**: [10.1594/PANGAEA.788537](https://doi.org/10.1594/PANGAEA.788537)
+- **License**: Personal research use only — redistribution requires written permission from the Commission for the Geological Map of the World (CCGM).
 
-### GLHYMPS – Global Hydrogeology Maps
-- **Citation**: Gleeson, T., Moosdorf, N., Hartmann, J., & Van Beek, L. P. H. (2014). A Glimpse Beneath Earth's Surface: Global Hydrogeology Maps (GLHYMPS) of permeability and porosity. *Geophysical Research Letters*, 41(11), 3891–3898.
-- **DOI**: [10.1002/2014GL059856](https://doi.org/10.5683/SP2/DLGXYO)
+### GLHYMPS 2.0 – Global Hydrogeology Maps
+- **Citation**: Gleeson, T. et al. (2014). Mapping permeability over the surface of the Earth. *Geophysical Research Letters*, 41(14), 4896–4900. [doi:10.1002/2014GL059856](https://doi.org/10.1002/2014GL059856)
+- **Dataset**: Huscroft, J. et al. GLHYMPS 2.0. [doi:10.5683/SP2/TTJNIU](https://doi.org/10.5683/SP2/TTJNIU)
+- **License**: [Open Database License (ODbL)](https://opendatacommons.org/licenses/odbl/) — redistribution with attribution permitted.
 
 ## 📋 Requirements
 
