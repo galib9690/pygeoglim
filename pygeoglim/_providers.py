@@ -58,7 +58,7 @@ GLHYMPS_TILES: dict[str, DataTile] = {
     "conus": DataTile(
         region="conus",
         url=f"{HF_BASE}/GLHYMP_CONUS.gpkg",
-        native_crs="EPSG:4326",
+        native_crs="ESRI:54034",   # WGS84 Cylindrical Equal Area
         description="GLHYMPS CONUS GeoPackage — continental United States",
         data_status="available",
     ),

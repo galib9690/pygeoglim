@@ -21,6 +21,7 @@ _FORBIDDEN = {"ai_hydro", "aihydro_watershed", "aihydro_tools"}
 _EXPECTED_MODULES = {
     "__init__",
     "_providers",
+    "_global_fetch",
     "contracts",
     "geometry",
     "manifest",
