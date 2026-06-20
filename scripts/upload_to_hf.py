@@ -89,7 +89,14 @@ def upload(
             "Build with --personal-use for private upload, or obtain CCGM permission first."
         )
 
-    api = HfApi(token=token or os.environ.get("HF_TOKEN"))
+    resolved_token = token or os.environ.get("HF_TOKEN") or os.environ.get("HUGGING_FACE_HUB_TOKEN")
+    if not resolved_token:
+        try:
+            from huggingface_hub import get_token as _get_token
+            resolved_token = _get_token()
+        except Exception:
+            pass
+    api = HfApi(token=resolved_token)
 
     if not dry_run:
         ensure_repo(api, repo_id, private=private)
@@ -120,17 +127,18 @@ def upload(
             print(f"  {remote}  ({sz:.1f} MB)")
         return
 
-    for i, (local, remote) in enumerate(files_to_upload, 1):
-        sz = local.stat().st_size / 1_048_576
-        print(f"  [{i}/{total}] {remote}  ({sz:.1f} MB)", end=" ", flush=True)
-        api.upload_file(
-            path_or_fileobj=local,
-            path_in_repo=remote,
-            repo_id=repo_id,
-            repo_type="dataset",
-            commit_message=f"Add {dataset} shard: {remote}",
-        )
-        print("✓")
+    # Use upload_folder (batched commits) to stay under the HF API rate limit.
+    # upload_file per shard = one API request each → 3000 requests hits 429 fast.
+    # upload_folder packs files into multi-file commits (default batch ~50 files each).
+    print(f"  Using upload_folder (batched commits) to avoid rate limits …")
+    api.upload_folder(
+        folder_path=str(shard_dir),
+        path_in_repo=hf_prefix,
+        repo_id=repo_id,
+        repo_type="dataset",
+        commit_message=f"Add {dataset} v{version} global shards ({total} files)",
+        ignore_patterns=["__pycache__", "*.pyc", ".DS_Store"],
+    )
 
     print(f"\n✓ Upload complete. {total} files in {repo_id}/{hf_prefix}/")
     print(f"  Manifest URL: https://huggingface.co/datasets/{repo_id}/resolve/main/{hf_prefix}/manifest.json")
