@@ -6,7 +6,7 @@
 [![Downloads](https://static.pepy.tech/badge/pygeoglim)](https://pepy.tech/project/pygeoglim)
 
 
-**`pygeoglim`** is a Python package for fetching raw lithology and hydrogeology data from **GLiM** and **GLHYMPS 2.0** for any watershed on Earth. It returns GeoDataFrames of geology polygons that callers can analyse freely, with CAMELS-style attribute summaries as an integrated convenience layer. Built for hydrological modelling, large-sample hydrology, and Earth system research.
+**`pygeoglim`** is a Python package for fetching raw lithology and hydrogeology data from **GLiM** and **GLHYMPS 2.0** for watershed analyses. It returns GeoDataFrames of geology polygons that callers can analyse freely, with CAMELS-style attribute summaries as an integrated convenience layer. Built for hydrological modelling, large-sample hydrology, and Earth system research.
 
 ## 📋 Table of Contents
 
@@ -75,6 +75,13 @@ hydrogeol = fetch_glhymps(rhine, region="global")
 ```
 
 > Requires a HuggingFace token for global tiles. Run `huggingface-cli login` once or set the `HF_TOKEN` environment variable.
+
+Global redistribution permission and tile availability are separate gates. The
+code-level permission flag lives in `pygeoglim.permissions.CCGM_PERMISSION_GRANTED`;
+call `pygeoglim.global_tiles_status()` to report whether loaded manifests have
+also passed the conservative tile-availability metadata gate. Do not interpret
+“permission granted” as “global tiles verified” unless the status is
+`permission_granted_tiles_verified` and live smoke tests pass.
 
 ### Using Shapefile Input
 

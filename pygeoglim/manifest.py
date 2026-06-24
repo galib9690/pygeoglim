@@ -140,6 +140,22 @@ def _parse_manifest(raw: dict) -> DatasetManifest:
     )
 
 
+def manifest_tiles_verified(manifest: DatasetManifest) -> bool:
+    """Return True when a manifest is publishable and every tile is checksumed.
+
+    This is a deliberately conservative metadata gate. It does not download or
+    hash remote files; live smoke tests can add that later. For now, a global
+    tile set is considered *metadata-verified* only if it is public-release
+    allowed, non-empty, every tile is marked available, and each tile carries a
+    checksum.
+    """
+    if not manifest.public_release_allowed or not manifest.tiles:
+        return False
+    return all(
+        tile.permission_status == "available" and bool(tile.sha256)
+        for tile in manifest.tiles
+    )
+
 # ── Shard resolver ─────────────────────────────────────────────────────────────
 
 def resolve_tiles_for_roi(
@@ -167,7 +183,8 @@ def resolve_tiles_for_roi(
     if not intersecting:
         return []
 
-    if not manifest.public_release_allowed:
+    from pygeoglim.permissions import CCGM_PERMISSION_GRANTED
+    if not manifest.public_release_allowed and not CCGM_PERMISSION_GRANTED:
         gated = [t for t in intersecting if t.permission_status != "available"]
         if gated:
             raise GeologyError(
@@ -179,8 +196,8 @@ def resolve_tiles_for_roi(
                 ),
                 recovery=(
                     "Use region='conus' for CONUS data which is already available. "
-                    "Global tiles activate automatically once permission is granted and "
-                    "public_release_allowed is set to True in the manifest."
+                    "Global tiles activate once CCGM_PERMISSION_GRANTED is True in "
+                    "pygeoglim.permissions (see PERMISSION_EVIDENCE.md)."
                 ),
             )
 

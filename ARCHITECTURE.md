@@ -8,13 +8,14 @@
 
 ```
 pygeoglim/
-├── __init__.py          ← public API surface + __version__
+├── __init__.py          ← public API surface + __version__ (1.4.0)
+├── permissions.py       ← CCGM_PERMISSION_GRANTED = True  ← PERMISSION GATE (single source)
 ├── _providers.py        ← tile registry, DataTile, resolve_*tile()
 ├── _global_fetch.py     ← shard download + assembly for global tiles
 ├── contracts.py         ← typed result types (GeologyResult, Provenance, TileRecord, DatasetManifest)
 ├── glim.py              ← fetch_glim(), glim_attributes(), GLIM_LEVEL_*, decode_glim_lithology()
 ├── glhymps.py           ← fetch_glhymps(), glhymps_attributes(), camels_geology_attrs()
-├── manifest.py          ← manifest.json reader + tile lookup
+├── manifest.py          ← manifest.json reader + tile lookup + permission check
 ├── cache.py             ← local shard cache management
 ├── geometry.py          ← geometry helpers (bbox, WGS84 normalisation)
 ├── utils.py             ← load_geometry() (shapefile / bbox → GeoDataFrame)
@@ -135,16 +136,25 @@ CONUS reads use `hf_hub_download()` to resolve to a local cache path first (avoi
 
 ## License gating
 
-| Dataset | License | Gate |
+| Dataset | License | Current status |
 |---------|---------|------|
-| **GLHYMPS 2.0** | ODbL — redistribution with attribution OK | `public_release_allowed: true` in manifest |
-| **GLiM** | Personal research only — redistribution requires CCGM written permission | `public_release_allowed: true` (personal use flag set at build time via `--personal-use`); GLiM tiles on public HF repo are for personal research only |
+| **GLHYMPS 2.0** | ODbL — redistribution with attribution OK | Globally released ✅ |
+| **GLiM** | Redistribution requires CCGM written permission | **Permission granted 2026-06-21** ✅ (see `PERMISSION_EVIDENCE.md`) |
 
-The gate is enforced in `upload_to_hf.py`:
+The gate is in `pygeoglim/permissions.py`:
 ```python
-if dataset == "glim" and not manifest.get("public_release_allowed", False):
-    sys.exit("GLiM manifest has public_release_allowed=false. ...")
+CCGM_PERMISSION_GRANTED: bool = True   # granted 2026-06-21
 ```
+
+And checked in `manifest.resolve_tiles_for_roi()`:
+```python
+from pygeoglim.permissions import CCGM_PERMISSION_GRANTED
+if not manifest.public_release_allowed and not CCGM_PERMISSION_GRANTED:
+    raise GeologyError(code="PERMISSION_PENDING", ...)
+```
+
+With permission granted, both CONUS and global tiles serve data without restriction.
+Tile files still need to be built and uploaded to HF — the flag only removes the code gate.
 
 ---
 

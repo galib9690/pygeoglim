@@ -1,6 +1,6 @@
 Metadata-Version: 2.4
 Name: pygeoglim
-Version: 1.1.0
+Version: 1.3.1
 Summary: GLiM lithology + GLHYMPS hydrogeology attributes for watersheds and regions
 Author-email: Mohammad Galib <mgalib@purdue.edu>
 License: MIT
@@ -26,6 +26,8 @@ Requires-Dist: shapely>=2.0.0
 Requires-Dist: pyproj>=3.6.0
 Requires-Dist: numpy>=1.24.0
 Requires-Dist: requests>=2.31.0
+Requires-Dist: platformdirs>=3.0.0
+Requires-Dist: huggingface_hub>=0.20.0
 Provides-Extra: contracts
 Requires-Dist: aihydro-core[contracts]>=0.2.0; extra == "contracts"
 Provides-Extra: dev
@@ -42,7 +44,7 @@ Dynamic: license-file
 [![Downloads](https://static.pepy.tech/badge/pygeoglim)](https://pepy.tech/project/pygeoglim)
 
 
-**`pygeoglim`** is a Python package for extracting geology attributes—specifically lithological and hydrogeological properties—from **GLiM** and **GLHYMPS** datasets for any region or watershed in CONUS region. It is built for use in hydrological modeling, large-sample hydrology, and Earth system research.
+**`pygeoglim`** is a Python package for fetching raw lithology and hydrogeology data from **GLiM** and **GLHYMPS 2.0** for any watershed on Earth. It returns GeoDataFrames of geology polygons that callers can analyse freely, with CAMELS-style attribute summaries as an integrated convenience layer. Built for hydrological modelling, large-sample hydrology, and Earth system research.
 
 ## 📋 Table of Contents
 
@@ -79,33 +81,47 @@ pip install -e .
 ### Basic Usage
 
 ```python
-from pygeoglim import load_geometry, glim_attributes, glhymps_attributes
+from shapely.geometry import box
+from pygeoglim import fetch_glim, fetch_glhymps, glim_attributes, glhymps_attributes
 
-# Load geometry from bounding box
-geom = load_geometry(bbox=[-85.5, 39.5, -85.0, 40.0])
+# Define a watershed bounding box (lon_min, lat_min, lon_max, lat_max)
+watershed = box(-85.5, 39.5, -85.0, 40.0)
 
-# Extract lithology attributes (GLiM)
-glim = glim_attributes(geom)
+# Fetch raw geology polygons (GeoDataFrames)
+lithology  = fetch_glim(watershed)      # GLiM — lithology polygons
+hydrogeol  = fetch_glhymps(watershed)   # GLHYMPS — permeability polygons
 
-# Extract hydrogeology attributes (GLHYMPS)
-glhymps = glhymps_attributes(geom)
+# CAMELS-style attribute summaries
+glim   = glim_attributes(lithology)
+glhymp = glhymps_attributes(hydrogeol)
 
-# Combine results
-attributes = {glim, glhymps}
-print(attributes)
+print(glim)    # {'geol_1st_class': ..., 'carbonate_rocks_frac': ..., ...}
+print(glhymp)  # {'geol_porosity': ..., 'geol_permeability': ..., ...}
 ```
+
+### Global Watersheds (non-CONUS)
+
+```python
+from shapely.geometry import box
+from pygeoglim import fetch_glim, fetch_glhymps
+
+# Rhine headwaters, Germany — pass region="global" for non-CONUS
+rhine = box(6.0, 46.5, 8.5, 48.5)
+
+lithology = fetch_glim(rhine, region="global")
+hydrogeol = fetch_glhymps(rhine, region="global")
+```
+
+> Requires a HuggingFace token for global tiles. Run `huggingface-cli login` once or set the `HF_TOKEN` environment variable.
 
 ### Using Shapefile Input
 
-You can also pass a shapefile path instead of a bounding box:
-
 ```python
-# Load geometry from shapefile
-geom = load_geometry(shapefile="path/to/watershed.shp")
+from pygeoglim import load_geometry, fetch_glim
 
-# Extract attributes
-glim = glim_attributes(geom)
-glhymps = glhymps_attributes(geom)
+# Load geometry from a shapefile
+geom = load_geometry(shapefile="path/to/watershed.shp")
+lithology = fetch_glim(geom)
 ```
 
 ## 📊 Extracted Attributes
@@ -130,21 +146,23 @@ glhymps = glhymps_attributes(geom)
 ## 🌍 Data Sources
 
 ### GLiM – Global Lithological Map
-- **Citation**: Hartmann, J., & Moosdorf, N. (2012). The new global lithological map database GLiM: A representation of rock properties at the Earth surface. *Geochemistry, Geophysics, Geosystems*, 13, Q12004.
-- **DOI**: [10.1029/2012GC004370](https://doi.org/10.1029/2012GC004370)
+- **Citation**: Hartmann, J. & Moosdorf, N. (2012). The new global lithological map database GLiM: A representation of rock properties at the Earth surface. *Geochemistry, Geophysics, Geosystems*, 13. [doi:10.1029/2012GC004370](https://doi.org/10.1029/2012GC004370)
 - **Dataset DOI**: [10.1594/PANGAEA.788537](https://doi.org/10.1594/PANGAEA.788537)
+- **License**: Personal research use only — redistribution requires written permission from the Commission for the Geological Map of the World (CCGM).
 
-### GLHYMPS – Global Hydrogeology Maps
-- **Citation**: Gleeson, T., Moosdorf, N., Hartmann, J., & Van Beek, L. P. H. (2014). A Glimpse Beneath Earth's Surface: Global Hydrogeology Maps (GLHYMPS) of permeability and porosity. *Geophysical Research Letters*, 41(11), 3891–3898.
-- **DOI**: [10.1002/2014GL059856](https://doi.org/10.5683/SP2/DLGXYO)
+### GLHYMPS 2.0 – Global Hydrogeology Maps
+- **Citation**: Gleeson, T. et al. (2014). Mapping permeability over the surface of the Earth. *Geophysical Research Letters*, 41(14), 4896–4900. [doi:10.1002/2014GL059856](https://doi.org/10.1002/2014GL059856)
+- **Dataset**: Huscroft, J. et al. GLHYMPS 2.0. [doi:10.5683/SP2/TTJNIU](https://doi.org/10.5683/SP2/TTJNIU)
+- **License**: [Open Database License (ODbL)](https://opendatacommons.org/licenses/odbl/) — redistribution with attribution permitted.
 
 ## 📋 Requirements
 
-- **Python** ≥ 3.8
-- **geopandas** ≥ 0.12
-- **shapely** ≥ 1.8
-- **numpy** ≥ 1.20
-- **pandas** ≥ 1.3
+- **Python** ≥ 3.9
+- **geopandas** ≥ 0.13
+- **shapely** ≥ 2.0
+- **numpy** ≥ 1.24
+- **pyproj** ≥ 3.6
+- **huggingface_hub** ≥ 0.20
 
 ## 📖 Citation
 
@@ -152,10 +170,11 @@ If you use this package in your research, please cite:
 
 ```bibtex
 @software{galib2025pygeoglim,
-  author = {Galib, Mohammad},
-  title = {pygeoglim: A Python package for extracting geological attributes from GLiM and GLHYMPS datasets},
-  url = {https://github.com/galib9690/pygeoglim},
-  year = {2025}
+  author = {Galib, Mohammad and Merwade, Venkatesh},
+  title  = {pygeoglim: A Python package for extracting geological attributes from GLiM and GLHYMPS datasets},
+  url    = {https://github.com/galib9690/pygeoglim},
+  doi    = {10.5281/zenodo.17314746},
+  year   = {2025}
 }
 ```
 

@@ -40,6 +40,7 @@ Typed error
 from __future__ import annotations
 
 from pygeoglim._providers import GeologyError
+from pygeoglim.permissions import CCGM_PERMISSION_GRANTED, global_tiles_status
 from pygeoglim.contracts import GeologyResult, Provenance, TileRecord, DatasetManifest
 from pygeoglim.glhymps import (
     camels_geology_attrs,
@@ -59,10 +60,13 @@ from pygeoglim.glim import (
 from pygeoglim.utils import load_geometry
 from pygeoglim.viz import plot_lithology, plot_permeability
 
-__version__ = "1.3.1"
+__version__ = "1.4.0"
 __author__ = "Mohammad Galib"
 
 __all__ = [
+    # Permission state
+    "CCGM_PERMISSION_GRANTED",
+    "global_tiles_status",
     # Errors
     "GeologyError",
     # Result types

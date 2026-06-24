@@ -1,0 +1,37 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "pygeoglim: GLiM Lithology and GLHYMPS Hydrogeology Attributes for Watersheds"
+version: "1.4.0"
+date-released: "2026-06-24"
+license: MIT
+repository-code: "https://github.com/AI-Hydro/pygeoglim"
+abstract: >
+  pygeoglim computes watershed-scale geological attributes from GLiM lithology
+  and GLHYMPS hydrogeology data, including dominant lithology classes,
+  carbonate-rock fraction, porosity, and permeability. Global data assets are
+  license-gated and distributed separately where permissions allow.
+authors:
+  - family-names: Galib
+    given-names: Mohammad
+    affiliation: "Purdue University"
+    email: mgalib@purdue.edu
+keywords:
+  - hydrology
+  - geology
+  - GLiM
+  - GLHYMPS
+  - watersheds
+  - CAMELS
+  - geospatial
+preferred-citation:
+  type: software
+  title: "pygeoglim: GLiM Lithology and GLHYMPS Hydrogeology Attributes for Watersheds"
+  authors:
+    - family-names: Galib
+      given-names: Mohammad
+      affiliation: "Purdue University"
+      email: mgalib@purdue.edu
+  version: "1.4.0"
+  date-released: "2026-06-24"
+  license: MIT
+  repository-code: "https://github.com/AI-Hydro/pygeoglim"
