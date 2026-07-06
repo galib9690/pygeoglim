@@ -7,3 +7,6 @@ build/
 .env
 *.so
 .pytest_cache/
+.DS_Store
+# Raw licensed-source geology data (GLiM/GLHYMPS) — never ships in git.
+/data/
