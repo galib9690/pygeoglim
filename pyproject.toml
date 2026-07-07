@@ -64,6 +64,7 @@ dev = [
     "pytest>=7.4.0",
     "pytest-cov>=4.1.0",
     "ruff>=0.1.0",
+    "import-linter>=2.0",
 ]
 
 [project.urls]
@@ -80,6 +81,17 @@ include = ["pygeoglim*"]
 markers = [
     "live: tests requiring internet / HuggingFace data. Deselect with -m 'not live'.",
 ]
+
+# ── Layering contract — declarative counterpart to tests/test_layering.py ───
+[tool.importlinter]
+root_package = "pygeoglim"
+include_external_packages = true
+
+[[tool.importlinter.contracts]]
+name = "pygeoglim must not import ai_hydro, aihydro_watershed, or aihydro_tools"
+type = "forbidden"
+source_modules = ["pygeoglim"]
+forbidden_modules = ["ai_hydro", "aihydro_watershed", "aihydro_tools"]
 
 # ── Ruff ────────────────────────────────────────────────────────────────────
 [tool.ruff]
